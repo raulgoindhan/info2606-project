@@ -6,14 +6,12 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True )
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
 
     def toDict(self):
         return{
             "id": self.id,
             "username": self.username,
-            "email": self.email,
             "password": self.password
         }
     
@@ -27,9 +25,11 @@ class User(db.Model):
         return 'User {}'.format(self.username)
 
 class Words(db.Model):
-    word = db.Column(db.String(120), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True )
+    word = db.Column(db.String(120), unique=True, nullable=False)
 
     def toDict(self):
         return{
+            "id": self.id,
             "word": self.word
         }

@@ -1,14 +1,21 @@
 from contextlib import nullcontext
 from dataclasses import dataclass
-from flask import Flask, request, render_template
-from flask_cors import CORS
+from email import header
+from flask import Flask, jsonify, request, render_template
+from flask_cors import CORS, cross_origin
 import json
 from flask_jwt import JWT, jwt_required, current_identity
+from sqlalchemy import true
+from  sqlalchemy.sql.expression import func, select
 from sqlalchemy.exc import IntegrityError
 from datetime import timedelta 
+import random
 from grabber import read_words
+import contextlib
+from sqlalchemy import MetaData
 
-from models import db, User
+
+from models import db, User, Words
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +23,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     app.config['SECRET_KEY'] = "MYSECRET"
     app.config['JWT_EXPIRATION_DELTA'] = timedelta(days = 7)
+    app.config['CORS_HEADERS'] = 'Content-Type'
     db.init_app(app)
     return app
 
@@ -25,6 +33,7 @@ app.app_context().push()
 db.create_all(app=app)
 
 global data
+
 
 read_words()
 
@@ -47,21 +56,37 @@ def default():
     }
 
 @app.route('/signup', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def signup():
-  userdata = request.get_json()
-  newuser = User(username=userdata['username'], email=userdata['email'])
-  newuser.set_password(userdata['password']) 
-  try:
-    db.session.add(newuser)
-    db.session.commit() 
-  except IntegrityError: 
-    db.session.rollback()
-    return 'username or email already exists' 
-  return 'user created' 
+    userdata = request.json()
 
-@app.route('/login')
+    newuser = User(username=userdata[0])
+    newuser.set_password(userdata[1]) 
+    try:
+        db.session.add(newuser)
+        db.session.commit() 
+    except IntegrityError: 
+        db.session.rollback()
+        resp = jsonify('username or email already exists')
+        resp.headers.add("Access-Control-Allow-Origin", "*")
+        return resp
+    resp = jsonify('user created')
+    resp.headers.add("Access-Control-Allow-Origin", "*")
+    return resp
+
+@app.route('/login', methods=['POST'])
 def login():
-    return
+    user = request.json
+    return authenticate(user[0], user[1])
+    
+
+@app.route('/worddata', methods=['GET'])
+def game():
+    rand = random.randint(1, 3000)
+    word = Words.query.filter_by(id=rand).first()
+    return(word.word)
+
+
 
 
 app.run(host='0.0.0.0', port=8080)

@@ -5,19 +5,37 @@ import './style.css'
 
 export const SignupPage = ()=>{
 
-    const [addUser, setAddUser] = useState('')
+
+
+    const handleSubmit = (event) =>{
+        event.preventDefault()
+        console.log(event.target[0].value)
+        console.log(event.target[1].value)
+        fetch('http://localhost:8080/signup', {
+            method: 'POST',
+            body: JSON.stringify({
+                username: event.target[0].value,
+                password: event.target[1].value
+            }),
+            headers: {
+                "crossDomain": "true",
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        }).then(response => response.json())
+          .then(message => console.log(message))
+    }
     
     return(
         <>
         
-        <form >
-            <label for='username'>Username:</label>
+        <form onSubmit={handleSubmit}>
+            <label htmlFor='username'>Username:</label>
             <input  type='text' id='username' required/>
 
-            <label for='password'>Password:</label>
+            <label htmlFor='password'>Password:</label>
             <input type='password' id='password' required/>
             
-            <button class="button" id="signup" type="submit">Sign Up</button>
+            <button className="button" id="signup" type="submit">Sign Up</button>
 
         </form>
        

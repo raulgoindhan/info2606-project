@@ -3,6 +3,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import { Nav } from "./Components/Nav";
 import { SignupPage } from "./Pages/SignUp";
 import { LoginPage } from "./Pages/Login";
+import {GamePage} from "./Pages/Game"
 
 import "./App.css";
 
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<SignUp />} />
+        <Route path="game" element={<Game />} />
       </Routes>
     </div>
     </>
@@ -53,6 +55,18 @@ function SignUp() {
       
       <main>
       <SignupPage/>
+      </main>
+   
+    </>
+  );
+}
+
+function Game() {
+  return (
+    <>
+      
+      <main>
+      <GamePage/>
       </main>
    
     </>
